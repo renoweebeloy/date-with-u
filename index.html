@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Will you go on a date with me?</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Courier New', Courier, monospace, sans-serif;
+    }
+
+    body {
+      background-color: #fbcfe8;
+      background-image: radial-gradient(#f472b6 1.5px, transparent 1.5px);
+      background-size: 20px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding: 20px;
+    }
+
+    .card {
+      background: #fff0f5;
+      border: 4px solid #f43f5e;
+      border-radius: 20px;
+      padding: 25px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(244, 63, 94, 0.25);
+      position: relative;
+    }
+
+    .step {
+      display: none;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1, h2 {
+      color: #be123c;
+      font-size: 1.3rem;
+      margin-bottom: 15px;
+      font-weight: bold;
+      line-height: 1.4;
+    }
+
+    p.subtitle {
+      color: #881337;
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    /* Sketchfab Embed Style */
+    .sketchfab-embed-wrapper {
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px dashed #f43f5e;
+      background: #ffe4e6;
+      margin-bottom: 15px;
+      padding-bottom: 5px;
+    }
+
+    .sketchfab-embed-wrapper iframe {
+      width: 100%;
+      height: 220px;
+      border: none;
+    }
+
+    /* Buttons */
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 15px;
+      position: relative;
+      min-height: 50px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: 2px solid #be123c;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.1s ease, background-color 0.2s;
+    }
+
+    .btn-primary {
+      background-color: #f43f5e;
+      color: white;
+      box-shadow: 0 4px 0 #be123c;
+      width: 100%;
+    }
+
+    .btn-primary:hover {
+      background-color: #e11d48;
+      transform: translateY(-2px);
+    }
+
+    .btn-yes {
+      background-color: #f43f5e;
+      color: white;
+      box-shadow: 0 4px 0 #be123c;
+      padding: 10px 24px;
+    }
+
+    .btn-no {
+      background-color: #ffffff;
+      color: #be123c;
+      box-shadow: 0 4px 0 #cbd5e1;
+      padding: 10px 24px;
+      position: relative;
+    }
+
+    /* Inputs */
+    .input-group {
+      text-align: left;
+      margin-bottom: 15px;
+    }
+
+    .input-group label {
+      display: block;
+      color: #be123c;
+      font-size: 0.85rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .input-group input, .input-group select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #f43f5e;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      outline: none;
+      background: #fff;
+    }
+
+    /* Food Grid Selection */
+    .food-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .food-card {
+      background: white;
+      border: 2px solid #fecdd3;
+      border-radius: 12px;
+      padding: 12px 5px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .food-card:hover, .food-card.selected {
+      border-color: #f43f5e;
+      background: #ffe4e6;
+      transform: scale(1.05);
+    }
+
+    .food-card span {
+      font-size: 1.8rem;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .food-card p {
+      font-size: 0.8rem;
+      color: #be123c;
+      font-weight: bold;
+    }
+
+    /* Fee Box / Receipt */
+    .fee-box {
+      background: #ffffff;
+      border: 2px solid #f43f5e;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .fee-title {
+      font-weight: bold;
+      color: #be123c;
+      font-size: 1.1rem;
+    }
+
+    .fee-price {
+      font-size: 1.5rem;
+      color: #e11d48;
+      font-weight: bold;
+      margin: 5px 0;
+    }
+
+    .fee-sub {
+      font-size: 0.75rem;
+      color: #9f1239;
+    }
+
+    /* Floating Hearts Animation */
+    .heart {
+      position: fixed;
+      font-size: 24px;
+      animation: floatUp 3s linear infinite;
+      pointer-events: none;
+      z-index: 99;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(100vh) scale(0.5); opacity: 1; }
+      100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+    }
+    
+    /* Hide the audio player */
+    audio {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Music (Chorus part of Relapse) -->
+  <audio id="bgMusic" loop>
+    <!-- Ginamit ang YouTube Audio Link bilang example, pwede mo palitan ng local file -->
+    <source src="music.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="card">
+    
+    <!-- STEP 1: INITIAL PROPOSAL & BEAR EMBED -->
+    <div class="step active" id="step1">
+      <h1>🌸 Will you go on a date with me? 🌸</h1>
+
+      <div class="sketchfab-embed-wrapper">
+        <iframe title="Hoshi's Teddy Bear" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/734fdb8857f149a2b907f3ff3eee50f4/embed"> </iframe> 
+        <p style="font-size: 11px; font-weight: normal; margin: 5px; color: #4A4A4A;"> 
+          <a href="https://sketchfab.com/3d-models/hoshis-teddy-bear-734fdb8857f149a2b907f3ff3eee50f4" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> Hoshi's Teddy Bear </a> by <a href="https://sketchfab.com/icebell" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> icebell </a> on <a href="https://sketchfab.com" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;">Sketchfab</a>
+        </p>
+      </div>
+
+      <div class="buttons">
+        <!-- Kapag pinindot ang YES, tutugtog ang music at pupunta sa Step 2 -->
+        <button class="btn btn-yes" onclick="playMusicAndNext(2)">YES 💕</button>
+        <button class="btn btn-no" id="noBtn" onmouseover="moveNoButton()" onclick="moveNoButton()">NO 😜</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: WAIT YOU SAID YES -->
+    <div class="step" id="step2">
+      <div style="font-size: 3rem; margin-bottom: 10px;">🧈✨</div>
+      <h2>WAIT YOU ACTUALLY SAID YES?? 😅</h2>
+      <p class="subtitle">i was so ready for you to say no 😭</p>
+      <button class="btn btn-primary" onclick="nextStep(3)">okay okie! ➔</button>
+    </div>
+
+    <!-- STEP 3: DATE & TIME PICKER -->
+    <div class="step" id="step3">
+      <div style="font-size: 2.5rem; margin-bottom: 10px;">📅</div>
+      <h2>So... when are you free?</h2>
+      
+      <div class="input-group">
+        <label>Pick a Day 📅</label>
+        <input type="date" id="datePicker">
+      </div>
+
+      <div class="input-group">
+        <label>What Time? ⏰</label>
+        <select id="timePicker">
+          <option value="">Select a time...</option>
+          <option value="12:00 PM">12:00 PM</option>
+          <option value="1:30 PM">1:30 PM</option>
+          <option value="4:30 PM">4:30 PM</option>
+          <option value="6:00 PM">6:00 PM</option>
+          <option value="7:30 PM">7:30 PM</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" onclick="nextStep(4)">set the date! 💕</button>
+    </div>
+
+    <!-- STEP 4: FOOD SELECTION -->
+    <div class="step" id="step4">
+      <h2>What are we feeling? ✨</h2>
+      <p class="subtitle">pick your vibe</p>
+
+      <div class="food-grid">
+        <div class="food-card" onclick="selectFood(this)">
+          <span>🍕</span>
+          <p>Pizza</p>
+        </div>
+        <div class="food-card" onclick="selectFood(this)">
+          <span>🍣</span>
+          <p>Sushi</p>
+        </div>
+        <div class="food-card" onclick="selectFood(this)">
+          <span>🍔</span>
+          <p>Burgers</p>
+        </div>
+        <div class="food-card" onclick="selectFood(this)">
+          <span>🍝</span>
+          <p>Pasta</p>
+        </div>
+        <div class="food-card" onclick="selectFood(this)">
+          <span>🌮</span>
+          <p>Tacos</p>
+        </div>
+        <div class="food-card" onclick="selectFood(this)">
+          <span>🍜</span>
+          <p>Ramen</p>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="nextStep(5)">next ➔</button>
+    </div>
+
+    <!-- STEP 5: CONFIRMATION NOTE -->
+    <div class="step" id="step5">
+      <div style="font-size: 2.5rem; margin-bottom: 10px;">🚗💨</div>
+      <h2>glad you didn't say no, be ready by 6, I'm coming to get you 🏎️</h2>
+      <p class="subtitle" style="font-size: 0.8rem; margin-top: 10px;">
+        P.S. normal people text. I made a website on Figma/Code, devoted to our big date.
+      </p>
+      <button class="btn btn-primary" onclick="nextStep(6)">ok I accept 🥰</button>
+    </div>
+
+    <!-- STEP 6: ONE SMALL FEE (CHECKOUT) -->
+    <div class="step" id="step6">
+      <div style="font-size: 2.5rem; margin-bottom: 10px;">💳</div>
+      <h2>one small fee</h2>
+      <p class="subtitle" style="font-size: 0.8rem;">
+        to confirm your acceptance of this date, please complete the following transaction. totally normal. everyone does this.
+      </p>
+
+      <div class="fee-box">
+        <div class="fee-title">Date Agreement™</div>
+        <div class="fee-price">$499</div>
+        <div class="fee-sub">one-time fee • non-refundable • absolutely worth it</div>
+      </div>
+
+      <button class="btn btn-primary" onclick="finishProposal()">pay $499 & confirm 💕</button>
+    </div>
+
+    <!-- STEP 7: FINAL SUCCESS / CELEBRATION -->
+    <div class="step" id="step7">
+      <div style="font-size: 3.5rem; margin-bottom: 10px;">🎉💖</div>
+      <h2>IT'S A DATE! 💕</h2>
+      <p class="subtitle">Can't wait to see you, my love! I love you so much! 🥰✨</p>
+    </div>
+
+  </div>
+
+  <script>
+    // Function to play music and proceed to next step
+    function playMusicAndNext(stepNumber) {
+      const music = document.getElementById('bgMusic');
+      music.volume = 0.5; // Adjust volume here (0.0 to 1.0)
+      music.play().catch(error => console.log("Autoplay blocked by browser."));
+      nextStep(stepNumber);
+    }
+
+    function nextStep(stepNumber) {
+      document.querySelectorAll('.step').forEach(step => {
+        step.classList.remove('active');
+      });
+      document.getElementById('step' + stepNumber).classList.add('active');
+      createHearts();
+    }
+
+    function moveNoButton() {
+      const btn = document.getElementById('noBtn');
+      const x = Math.random() * 160 - 80;
+      const y = Math.random() * 160 - 80;
+      btn.style.transform = `translate(${x}px, ${y}px)`;
+    }
+
+    function selectFood(element) {
+      document.querySelectorAll('.food-card').forEach(card => card.classList.remove('selected'));
+      element.classList.add('selected');
+    }
+
+    function finishProposal() {
+      nextStep(7);
+      createHearts();
+      createHearts();
+    }
+
+    function createHearts() {
+      for (let i = 0; i < 20; i++) {
+        setTimeout(() => {
+          const heart = document.createElement('div');
+          heart.classList.add('heart');
+          heart.innerText = ['💖', '💕', '💗', '❤', '🌸'][Math.floor(Math.random() * 5)];
+          heart.style.left = Math.random() * 100 + 'vw';
+          heart.style.animationDuration = (Math.random() * 2 + 2) + 's';
+          document.body.appendChild(heart);
+
+          setTimeout(() => {
+            heart.remove();
+          }, 3000);
+        }, i * 100);
+      }
+    }
+  </script>
+
+</body>
+</html>
